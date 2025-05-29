@@ -1,60 +1,29 @@
-# 🚀 Secure File Sharing Backend
+# Secure File Sharing Backend 🚀
 
-This is a secure file-sharing backend system built with **FastAPI** and **MongoDB**. It supports user roles, JWT-based authentication, email verification, encrypted file handling, and temporary download links.
-
----
-
-## ✨ Features
-
-- ✅ User registration & login with roles (`client`, `ops`)
-- ✉️ Email-based verification before file access
-- 🔐 JWT authentication for secure endpoints
-- 📁 File upload support (ops only)
-- 🔗 Expiring encrypted download links (for clients)
-- ❌ Test suite not implemented yet (future scope)
+This backend service enables secure file sharing with JWT authentication and role-based access control using FastAPI and MongoDB.
 
 ---
 
-## 🛠 Tech Stack
+## 🔑 Features
 
-- **FastAPI** – Web framework
-- **MongoDB** – NoSQL database
-- **PyJWT** – JWT-based auth
-- **Pydantic** – Data validation
-- **Uvicorn** – ASGI server
-- **passlib** – Password hashing
-
----
-
-## 📁 Project Structure
-
-```
-
-secure\_file\_sharing/
-├── app/
-│   ├── main.py              # FastAPI app setup
-│   ├── models/              # Pydantic & MongoDB models
-│   ├── routes/              # API route handlers
-│   └── utils/               # JWT, auth, helpers
-├── tests/                   # (Future) test cases
-├── requirements.txt         # Python dependencies
-└── README.md                # Project documentation
-
-````
+- ✅ User registration and login (`client` & `ops` roles)
+- 🔐 JWT authentication for protected routes
+- 📁 Secure file uploads (only by `ops`)
+- 📩 Temporary expiring download links (for `client`)
+- ✉️ Email functionality: send the download link via email to client
+- 🧪 Test suite with `pytest` (optional/bonus)
 
 ---
 
-## 🚀 Installation
+## ⚙️ Installation
 
 ```bash
 git clone https://github.com/AshishBytes/secure-file-sharing.git
 cd secure-file-sharing
-
 python -m venv venv
-venv\Scripts\activate      # Windows
+venv\Scripts\activate        # Windows
 # or
-source venv/bin/activate   # macOS/Linux
-
+source venv/bin/activate     # macOS/Linux
 pip install -r requirements.txt
 ````
 
@@ -66,30 +35,18 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
-Visit: [http://127.0.0.1:8000](http://127.0.0.1:8000)
+Server runs at: [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
 ---
 
-## 🔐 API Endpoints
+## 🔐 User Authentication
 
-### ✅ Auth Routes
+### Register Users
 
-| Method | Endpoint         | Description       |
-| ------ | ---------------- | ----------------- |
-| POST   | `/user/register` | Register new user |
-| POST   | `/user/login`    | Login and get JWT |
-
-**🔧 Example JSON for Signup/Login**:
+**Client:**
 
 ```json
-// OPS User Registration/Login
-{
-  "email": "ops@example.com",
-  "password": "secureops",
-  "role": "ops"
-}
-
-// Client User Registration/Login
+POST /user/register
 {
   "email": "client@app.com",
   "password": "testpass",
@@ -97,55 +54,135 @@ Visit: [http://127.0.0.1:8000](http://127.0.0.1:8000)
 }
 ```
 
----
+**Ops:**
 
-### 📁 File Routes
+```json
+POST /user/register
+{
+  "email": "ops@example.com",
+  "password": "secureops",
+  "role": "ops"
+}
+```
 
-| Method | Endpoint                         | Description                     |
-| ------ | -------------------------------- | ------------------------------- |
-| POST   | `/file/upload`                   | Upload file (ops only)          |
-| GET    | `/file/download-link/{filename}` | Generate expiring download link |
-| GET    | `/file/download/{token}`         | Download file using valid token |
+### Login
 
-> 🔒 All protected routes require this header:
->
-> ```
-> Authorization: Bearer <your-jwt-token>
-> ```
+```json
+POST /user/login
+{
+  "email": "client@app.com",
+  "password": "testpass"
+}
+```
 
----
+Response:
 
-## 📦 Testing With Postman
-
-1. **Register Users** at `/user/register` with above JSON.
-2. **Login** via `/user/login` to receive a JWT.
-3. Use `Authorization: Bearer <token>` for protected routes.
-
----
-
-## 📌 Notes
-
-* Create at least two users:
-
-  * One with `"role": "ops"` to upload files
-  * One with `"role": "client"` to download files
-* Use **Postman**, **Thunder Client**, or **cURL** for testing.
-* Encrypted JWT tokens include:
-
-  * `filename`
-  * `user email`
-  * `expiration time`
+```json
+{
+  "access_token": "<JWT_TOKEN>"
+}
+```
 
 ---
 
-## ⚠️ Missing
+## 📁 File Upload (Ops only)
 
-* ❌ Automated test cases (pytest)
-* ❌ Frontend integration
-* ❌ Admin dashboard
+```http
+POST /file/upload
+Headers:
+Authorization: Bearer <ops-token>
+Content-Type: multipart/form-data
+```
 
 ---
 
-## 👤 Author
+## 🔗 Generate Download Link (Client)
 
-Built with ❤️ by **Ashish Singh**
+```http
+GET /file/download-link/<filename>
+Headers:
+Authorization: Bearer <client-token>
+```
+
+Response:
+
+```json
+{
+  "download_url": "http://127.0.0.1:8000/file/download/<token>"
+}
+```
+
+---
+
+## ⬇️ File Download (Using Token)
+
+```http
+GET /file/download/<token>
+```
+
+---
+
+## ✉️ Email Feature (Bonus)
+
+Add the following to your `.env`:
+
+```env
+MAIL_USERNAME=your_email@example.com
+MAIL_PASSWORD=your_app_password
+MAIL_FROM=your_email@example.com
+MAIL_PORT=587
+MAIL_SERVER=smtp.gmail.com
+MAIL_FROM_NAME="SecureShare"
+```
+
+Then call:
+
+```http
+POST /file/send-email/<filename>
+Headers:
+Authorization: Bearer <client-token>
+Body:
+{
+  "to_email": "client@app.com"
+}
+```
+
+This sends the generated link to the email securely.
+
+---
+
+## 📂 Project Structure
+
+```
+secure_file_sharing/
+├── app/
+│   ├── main.py
+│   ├── models/
+│   ├── routes/
+│   ├── utils/
+├── tests/
+├── .env
+├── requirements.txt
+└── README.md
+```
+
+---
+
+## 🧪 Running Tests (Optional Bonus)
+
+You can run all test cases using:
+
+```bash
+$env:PYTHONPATH = "."        # Windows
+export PYTHONPATH=.          # macOS/Linux
+
+pytest tests/
+```
+
+> Make sure `report.docx` is in your project root or adjust the test file accordingly.
+
+---
+
+## 👨‍💻 Author
+
+Made with ❤️ by **Ashish Singh** — For Backend Intern Test.
