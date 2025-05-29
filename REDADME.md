@@ -1,24 +1,55 @@
-# Secure File Sharing Backend 🚀
+# 🚀 Secure File Sharing Backend
 
-This is a secure file-sharing backend system built with FastAPI and MongoDB. It supports user roles, JWT-based authentication, secure file upload/download, and temporary download links.
-
----
-
-## Features
-
-- ✅ User registration and login (client & ops roles)
-- 🔐 JWT authentication for protected routes
-- 📁 Secure file upload by ops users
-- 🔗 Temporary, expiring download links for clients
-- 🧪 Optional: Test suite with `pytest`
+This is a secure file-sharing backend system built with **FastAPI** and **MongoDB**. It supports user roles, JWT-based authentication, email verification, encrypted file handling, and temporary download links.
 
 ---
 
-## Installation
+## ✨ Features
+
+- ✅ User registration & login with roles (`client`, `ops`)
+- ✉️ Email-based verification before file access
+- 🔐 JWT authentication for secure endpoints
+- 📁 File upload support (ops only)
+- 🔗 Expiring encrypted download links (for clients)
+- ❌ Test suite not implemented yet (future scope)
+
+---
+
+## 🛠 Tech Stack
+
+- **FastAPI** – Web framework
+- **MongoDB** – NoSQL database
+- **PyJWT** – JWT-based auth
+- **Pydantic** – Data validation
+- **Uvicorn** – ASGI server
+- **passlib** – Password hashing
+
+---
+
+## 📁 Project Structure
+
+```
+
+secure\_file\_sharing/
+├── app/
+│   ├── main.py              # FastAPI app setup
+│   ├── models/              # Pydantic & MongoDB models
+│   ├── routes/              # API route handlers
+│   └── utils/               # JWT, auth, helpers
+├── tests/                   # (Future) test cases
+├── requirements.txt         # Python dependencies
+└── README.md                # Project documentation
+
+````
+
+---
+
+## 🚀 Installation
 
 ```bash
 git clone https://github.com/AshishBytes/secure-file-sharing.git
 cd secure-file-sharing
+
 python -m venv venv
 venv\Scripts\activate      # Windows
 # or
@@ -29,60 +60,92 @@ pip install -r requirements.txt
 
 ---
 
-## Running the Server
+## ▶️ Running the Server
 
 ```bash
 uvicorn app.main:app --reload
 ```
 
-Server will be available at:
-📍 [http://127.0.0.1:8000](http://127.0.0.1:8000)
+Visit: [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
 ---
 
-## API Endpoints
+## 🔐 API Endpoints
 
-### Auth Routes
+### ✅ Auth Routes
 
-* `POST /user/register` — Register user
-* `POST /user/login` — Login and receive JWT token
+| Method | Endpoint         | Description       |
+| ------ | ---------------- | ----------------- |
+| POST   | `/user/register` | Register new user |
+| POST   | `/user/login`    | Login and get JWT |
 
-### File Routes
+**🔧 Example JSON for Signup/Login**:
 
-* `POST /file/upload` — Upload a file (ops only)
-* `GET /file/download-link/{filename}` — Generate download link (client)
-* `GET /file/download/{token}` — Download file using token
+```json
+// OPS User Registration/Login
+{
+  "email": "ops@example.com",
+  "password": "secureops",
+  "role": "ops"
+}
 
-🛡 Protected routes require:
-
-```http
-Authorization: Bearer <your-jwt-token>
+// Client User Registration/Login
+{
+  "email": "client@app.com",
+  "password": "testpass",
+  "role": "client"
+}
 ```
 
 ---
 
-## Project Structure
+### 📁 File Routes
 
-```
-secure_file_sharing/
-├── app/
-│   ├── main.py
-│   ├── models/
-│   ├── routes/
-│   └── utils/
-├── requirements.txt
-└── README.md
-```
+| Method | Endpoint                         | Description                     |
+| ------ | -------------------------------- | ------------------------------- |
+| POST   | `/file/upload`                   | Upload file (ops only)          |
+| GET    | `/file/download-link/{filename}` | Generate expiring download link |
+| GET    | `/file/download/{token}`         | Download file using valid token |
 
----
-
-## Notes
-
-* Use tools like **Postman** or **cURL** for testing the endpoints.
-* You must create two users: one with `"role": "ops"` and one with `"role": "client"`.
+> 🔒 All protected routes require this header:
+>
+> ```
+> Authorization: Bearer <your-jwt-token>
+> ```
 
 ---
 
-## Author
+## 📦 Testing With Postman
 
-Made with ❤️ by Ashish Singh – Backend Intern Challenge
+1. **Register Users** at `/user/register` with above JSON.
+2. **Login** via `/user/login` to receive a JWT.
+3. Use `Authorization: Bearer <token>` for protected routes.
+
+---
+
+## 📌 Notes
+
+* Create at least two users:
+
+  * One with `"role": "ops"` to upload files
+  * One with `"role": "client"` to download files
+* Use **Postman**, **Thunder Client**, or **cURL** for testing.
+* Encrypted JWT tokens include:
+
+  * `filename`
+  * `user email`
+  * `expiration time`
+
+---
+
+## ⚠️ Missing
+
+* ❌ Automated test cases (pytest)
+* ❌ Frontend integration
+* ❌ Admin dashboard
+
+---
+
+## 👤 Author
+
+Built with ❤️ by **Ashish Singh**
