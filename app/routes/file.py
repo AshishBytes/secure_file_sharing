@@ -25,12 +25,10 @@ async def upload_file(
     if ext not in ALLOWED_EXTENSIONS:
         raise HTTPException(status_code=400, detail="File type not allowed")
 
-    # Save file
     save_path = os.path.join(UPLOAD_DIR, filename)
     with open(save_path, "wb") as buffer:
         shutil.copyfileobj(uploaded_file.file, buffer)
 
-    # Store metadata
     file_doc = {
         "filename": filename,
         "extension": ext,
@@ -75,7 +73,7 @@ async def list_uploaded_files(user=Depends(require_role("client"))):
     files_cursor = db["files"].find({})
     files = []
     async for file_doc in files_cursor:
-        file_doc["_id"] = str(file_doc["_id"])  # convert ObjectId to string
+        file_doc["_id"] = str(file_doc["_id"])
         files.append(file_doc)
 
     return {"files": files, "message": "File list fetched successfully"}

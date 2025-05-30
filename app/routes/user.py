@@ -27,7 +27,6 @@ async def client_signup(user: UserCreate):
     }
     result = await db["users"].insert_one(user_doc)
 
-    # Simulated encrypted verification link (we'll improve it later)
     verification_url = f"http://localhost:8000/user/verify/{str(result.inserted_id)}"
 
     return {
